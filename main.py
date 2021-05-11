@@ -1,3 +1,6 @@
+from operator import itemgetter
+import collections
+
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -38,7 +41,8 @@ def read_words(topic):
         words = v[1]
         for w in words:
             word = w.split('_')[0]
-            context.append(word)
+            score = (float)(w.split('_')[1])
+            context.append((word,score))
     return context
 
 def _print(text):
@@ -54,6 +58,11 @@ def search_value(_t, nasari):
             if _w == _t:
                 return v
     return ""
+
+
+def __print(filtered_text):
+    for key in filtered_text:
+        print(str(key) + ' *** ' + filtered_text[key])
 
 
 def summarize(text,ratio):
@@ -74,21 +83,28 @@ def summarize(text,ratio):
                 topic.append(_v)
         else:
             topic.append(_v)
+
     context = read_words(topic)
-    filtered_text = set()
+    filtered_text = {}
     c = 0
     for p in text:
+        score = 0.0
+        insert = False
         p = p.lower()
         for w in context:
-            print(w)
-            if w in p:
-                print('{} contains {}'.format(p,w))
-                filtered_text.add(p)
-    print('*****ORIGINAL TEXT*****')
-    print(len(text))
-    print(text)
-    print('*****SUMMARISED TEXT*****')
-    print(len(filtered_text))
-    print(filtered_text)
+            if w[0] in p:
+                insert = True
+                print('{} contains {}'.format(p,w[0]))
+                score = score + w[1]
+        if insert:
+            filtered_text[score] = p
+    return collections.OrderedDict(sorted(filtered_text.items(),reverse=True))
+
 text = read_document("Andy-Warhol")
-summarize(text,10)
+summarized = summarize(text,10)
+print('*****ORIGINAL TEXT*****')
+print('Length: ' + str(len(text)))
+_print(text)
+print('*****SUMMARIZED TEXT*****')
+print('Length: ' + str(len(summarized)))
+__print(summarized)
