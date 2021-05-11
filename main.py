@@ -98,10 +98,19 @@ def summarize(text,ratio):
                 score = score + w[1]
         if insert:
             filtered_text[score] = p
-    return collections.OrderedDict(sorted(filtered_text.items(),reverse=True))
+    lines = len(text)
+    output_lines = lines - int((lines*ratio)/100)
+    _output = {}
+    c = 0
+    for key in collections.OrderedDict(sorted(filtered_text.items(),reverse=True)):
+        c = c + 1
+        if c > output_lines:
+            break
+        _output[key] = filtered_text[key]
+    return _output
 
-text = read_document("Andy-Warhol")
-summarized = summarize(text,10)
+text = read_document("Life-indoors")
+summarized = summarize(text,30)
 print('*****ORIGINAL TEXT*****')
 print('Length: ' + str(len(text)))
 _print(text)
